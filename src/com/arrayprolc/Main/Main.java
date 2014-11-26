@@ -9,6 +9,7 @@ import net.minecraft.util.org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -16,15 +17,18 @@ import org.bukkit.plugin.java.JavaPlugin;
 import code.husky.mysql.MySQL;
 
 import com.arrayprolc.event.ArrayEventsSetup;
+import com.arrayprolc.event.PlayerJoin;
+import com.arrayprolc.rank.RankManager;
 
 import de.slikey.effectlib.EffectManager;
 import de.slikey.effectlib.entity.EntityManager;
 import de.slikey.effectlib.listener.ItemListener;
 
-public class Main extends JavaPlugin {
+public class Main extends JavaPlugin implements Listener {
 
 	public static boolean acceptingPlayers = false;
 	public static boolean ready = false;
+	public static boolean inLobby = true;
 	public static MySQL MySQL;
 	public static java.sql.Connection c = null;
 	private EntityManager entityManager;
@@ -33,18 +37,21 @@ public class Main extends JavaPlugin {
 	File move = new File("plugins/WallsTower/config.yml".replace("/", File.separator));
 
 	public void onEnable(){
+		
 		try {
 			Files.delete(move.toPath());
 			FileUtils.copyFile(otherConfigFile, move);
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
+		saveFile();
 		this.reloadConfig();
 		Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), "save-off");
 		ready = true;
 		acceptingPlayers = true;
-		loadListeners();
+		RankManager.init(this);
 		ArrayEventsSetup.setupEvents(this);
+		Bukkit.getPluginManager().registerEvents(this, this);
 	}
 
 
@@ -56,6 +63,7 @@ public class Main extends JavaPlugin {
 					e.getPlayer().kickPlayer("§cThat game is still rebooting!");
 				}
 			}, 2);
+			return;
 		}
 		if(!acceptingPlayers){
 			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable(){
@@ -63,7 +71,10 @@ public class Main extends JavaPlugin {
 					e.getPlayer().kickPlayer("§cThat game is full! Try another server!");
 				}
 			}, 2);
+			return;
 		}
+		//Using this method instead of putting content into the event so if we need to call it later it's no problem.
+		PlayerJoin.joinServer(e.getPlayer());
 	}
 
 	@Override
