@@ -16,7 +16,7 @@ public class Main extends JavaPlugin {
 	}
 	
 	public void onDisable(){
-		//test
+		//test fsdf
 	}
 	
 	@EventHandler
