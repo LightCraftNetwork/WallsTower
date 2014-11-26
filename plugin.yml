@@ -1,0 +1,7 @@
+name: WallsTower
+main: com.arrayprolc.Main.Main
+version: 1.0
+description: Test
+author: mike1665, ArrayPro, jrl1004
+commands:
+    report:
