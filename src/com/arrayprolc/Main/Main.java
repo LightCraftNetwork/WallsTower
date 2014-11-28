@@ -7,6 +7,7 @@ import java.util.List;
 import net.minecraft.util.org.apache.commons.io.FileUtils;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -19,6 +20,7 @@ import code.husky.mysql.MySQL;
 import com.arrayprolc.event.ArrayEventsSetup;
 import com.arrayprolc.event.PlayerJoin;
 import com.arrayprolc.rank.RankManager;
+import com.arrayprolc.team.Team;
 
 import de.slikey.effectlib.EffectManager;
 import de.slikey.effectlib.entity.EntityManager;
@@ -32,6 +34,8 @@ public class Main extends JavaPlugin implements Listener {
 	public static MySQL MySQL;
 	public static java.sql.Connection c = null;
 	private EntityManager entityManager;
+	public static Team red, blue, green, yellow;
+	public static Team[] teams = { red, blue, green, yellow };
 	//Will be editable soon
 	File otherConfigFile = new File("C:/Users/Justin/Desktop/SpeedBuild Local Server/plugins/HubPlugin/config.yml".replace("/", File.separator));
 	File move = new File("plugins/WallsTower/config.yml".replace("/", File.separator));
@@ -52,6 +56,10 @@ public class Main extends JavaPlugin implements Listener {
 		RankManager.init(this);
 		ArrayEventsSetup.setupEvents(this);
 		Bukkit.getPluginManager().registerEvents(this, this);
+		red = new Team("Red", (byte)14, ChatColor.RED);
+		blue = new Team("Blue", (byte)11, ChatColor.BLUE);
+		green = new Team("Green", (byte)13, ChatColor.GREEN);
+		yellow = new Team("Yellow", (byte)4, ChatColor.YELLOW);
 	}
 
 
@@ -75,6 +83,8 @@ public class Main extends JavaPlugin implements Listener {
 		}
 		//Using this method instead of putting content into the event so if we need to call it later it's no problem.
 		PlayerJoin.joinServer(e.getPlayer());
+		
+		
 	}
 
 	@Override
