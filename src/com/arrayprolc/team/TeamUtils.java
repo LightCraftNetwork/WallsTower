@@ -12,11 +12,12 @@ public class TeamUtils {
 	public static HashMap<UUID, String> teams = new HashMap<UUID, String>();
 	
 	public static int getMaxPerTeam(){
-		int total = Bukkit.getOnlinePlayers().length;
+		return 2;
+	/*	int total = Bukkit.getOnlinePlayers().length;
 		if(total < 2){
 			return 1;
 		}
-			return Math.round(total/Main.teams.length);
+			return Math.round(total/Main.teams.length);*/
 	}
 	
 	

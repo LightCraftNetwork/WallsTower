@@ -9,21 +9,29 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Zombie;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import code.husky.mysql.MySQL;
 
 import com.arrayprolc.bountifulupdate.BUtils;
+import com.arrayprolc.bungeehook.BungeeHooks;
 import com.arrayprolc.event.ArrayEventsSetup;
 import com.arrayprolc.event.ClickWool;
 import com.arrayprolc.event.PlayerJoin;
+import com.arrayprolc.introanimation.IntroAnimation;
 import com.arrayprolc.rank.RankManager;
 import com.arrayprolc.team.Team;
 
@@ -67,6 +75,43 @@ public class Main extends JavaPlugin implements Listener {
 		blue = new Team("Blue", (byte)11, ChatColor.BLUE);
 		green = new Team("Green", (byte)13, ChatColor.GREEN);
 		yellow = new Team("Yellow", (byte)4, ChatColor.YELLOW);
+		BungeeHooks.init(this);
+	}
+	
+	public void scheduleCountdown(){
+		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable(){
+			public void run(){
+				for(Player p : Bukkit.getOnlinePlayers()) BUtils.sendTitle(p, "§a§l3", "", 5, 5, 5);
+			}
+		}, 20);
+		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable(){
+			public void run(){
+				for(Player p : Bukkit.getOnlinePlayers()) BUtils.sendTitle(p, "§6§l2", "", 5, 5, 5);
+			}
+		}, 20*2);
+		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable(){
+			public void run(){
+				for(Player p : Bukkit.getOnlinePlayers()){
+					BUtils.sendTitle(p, "§c§l1", "", 5, 5, 5);
+					p.getInventory().clear();
+				}
+			}
+		}, 20*3);
+		Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable(){
+			public void run(){
+				IntroAnimation.playIntroAnimation();
+			}
+		}, 20*4);
+	}
+	
+	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args){
+		if(label.equalsIgnoreCase("startgame")){
+			if(sender instanceof Player){
+				if(!(((Player)sender).isOp())) return false;
+			}
+			scheduleCountdown();
+		}
+		return false;
 	}
 
 
@@ -90,8 +135,6 @@ public class Main extends JavaPlugin implements Listener {
 		}
 		//Using this method instead of putting content into the event so if we need to call it later it's no problem.
 		PlayerJoin.joinServer(e.getPlayer());
-		
-		
 	}
 
 	@Override
@@ -120,7 +163,19 @@ public class Main extends JavaPlugin implements Listener {
 		e.getEntity().setGameMode(GameMode.SPECTATOR);
 		e.getEntity().teleport(e.getEntity().getLocation());
 		 final Player player = e.getEntity();
-		 final Location loc = player.getLocation();
+		 final Location loc = player.getLocation().add(0, 1, 0);
+		 String name = e.getEntity().getPlayerListName();
+			Zombie z = loc.getWorld().spawn(loc, Zombie.class);
+			z.setCustomName(name + "'s body");
+			z.setCustomNameVisible(true);
+			
+			EntityEquipment ee = z.getEquipment();
+			ItemStack hand = player.getItemInHand();
+			ee.setItemInHandDropChance(0.6F);
+			ee.setItemInHand(hand);
+			ee.setHelmet(new ItemStack(Material.LEATHER_HELMET));
+			ee.setHelmetDropChance(0F);
+			e.getDrops().remove(hand);
 		    Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable()
 		    {
 		      public void run()
@@ -154,6 +209,7 @@ public class Main extends JavaPlugin implements Listener {
 		      }
 		    }, 1);
 		BUtils.sendTitle(e.getEntity(), "§c§lYOU DIED", e.getDeathMessage().replace(e.getEntity().getName(), "You").replace("was", "were"), 5, 5, 5);
+
 		
 	}
 
