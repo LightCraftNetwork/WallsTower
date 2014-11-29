@@ -43,7 +43,7 @@ public class Main extends JavaPlugin implements Listener {
 	public static Team red, blue, green, yellow;
 	public static Team[] teams = { red, blue, green, yellow };
 	//Will be editable soon
-	File otherConfigFile = new File("C:/Users/Justin/Desktop/SpeedBuild Local Server/plugins/HubPlugin/config.yml".replace("/", File.separator));
+	File otherConfigFile = new File("C:/Users/Admin/Desktop/LCMMORPG/LC/Lobby/plugins/HubPlugin/config.yml".replace("/", File.separator));
 	File move = new File("plugins/WallsTower/config.yml".replace("/", File.separator));
 
 	public void onEnable(){
