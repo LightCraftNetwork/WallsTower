@@ -1,14 +1,19 @@
 package com.arrayprolc.team;
 
+import java.util.HashMap;
+import java.util.UUID;
+
 import org.bukkit.Bukkit;
 
-import com.arrayprolc.Main.Main;
+import com.arrayprolc.MainPackage.Main;
 
 public class TeamUtils {
 
+	public static HashMap<UUID, String> teams = new HashMap<UUID, String>();
+	
 	public static int getMaxPerTeam(){
 		int total = Bukkit.getOnlinePlayers().length;
-		if(total < 4){
+		if(total < 2){
 			return 1;
 		}
 			return Math.round(total/Main.teams.length);
@@ -27,5 +32,25 @@ public class TeamUtils {
 			}
 		}
 		return smallest;
+	}
+	
+	public static Team getTeam(String s){
+		switch(s.toLowerCase()){
+		case "red": return Main.red;
+		case "blue": return Main.blue;
+		default: return Main.red;
+		}
+	}
+	
+	public static String getString(Team s){
+		if(s.equals(Main.red)) return "red";
+		if(s.equals(Main.blue)) return "blue";
+		return "red";
+	}
+	
+	public static String getColor(Team s){
+		if(s.equals(Main.red)) return "§c";
+		if(s.equals(Main.blue)) return "§9";
+		return "red";
 	}
 }

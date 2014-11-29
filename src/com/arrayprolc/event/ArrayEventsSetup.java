@@ -4,7 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.plugin.PluginManager;
 
-import com.arrayprolc.Main.Main;
+import com.arrayprolc.MainPackage.Main;
 
 public class ArrayEventsSetup {
 

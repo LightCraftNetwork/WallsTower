@@ -1,23 +1,28 @@
-package com.arrayprolc.Main;
+package com.arrayprolc.MainPackage;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.util.List;
 
-import net.minecraft.util.org.apache.commons.io.FileUtils;
-
+import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import code.husky.mysql.MySQL;
 
+import com.arrayprolc.bountifulupdate.BUtils;
 import com.arrayprolc.event.ArrayEventsSetup;
+import com.arrayprolc.event.ClickWool;
 import com.arrayprolc.event.PlayerJoin;
 import com.arrayprolc.rank.RankManager;
 import com.arrayprolc.team.Team;
@@ -25,6 +30,7 @@ import com.arrayprolc.team.Team;
 import de.slikey.effectlib.EffectManager;
 import de.slikey.effectlib.entity.EntityManager;
 import de.slikey.effectlib.listener.ItemListener;
+
 
 public class Main extends JavaPlugin implements Listener {
 
@@ -56,6 +62,7 @@ public class Main extends JavaPlugin implements Listener {
 		RankManager.init(this);
 		ArrayEventsSetup.setupEvents(this);
 		Bukkit.getPluginManager().registerEvents(this, this);
+		Bukkit.getPluginManager().registerEvents(new ClickWool(this), this);
 		red = new Team("Red", (byte)14, ChatColor.RED);
 		blue = new Team("Blue", (byte)11, ChatColor.BLUE);
 		green = new Team("Green", (byte)13, ChatColor.GREEN);
@@ -64,7 +71,7 @@ public class Main extends JavaPlugin implements Listener {
 
 
 	@EventHandler
-	public void join(PlayerJoinEvent e){
+	public void join(final PlayerJoinEvent e){
 		if(!ready){
 			Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable(){
 				public void run(){
@@ -106,6 +113,48 @@ public class Main extends JavaPlugin implements Listener {
 	}
 	public void saveFile(){
 		this.saveConfig();
+	}
+	
+	@EventHandler
+	public void death(PlayerDeathEvent e){
+		e.getEntity().setGameMode(GameMode.SPECTATOR);
+		e.getEntity().teleport(e.getEntity().getLocation());
+		 final Player player = e.getEntity();
+		 final Location loc = player.getLocation();
+		    Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable()
+		    {
+		      public void run()
+		      {
+		        if (player.isDead()) {
+		          try
+		          {
+		            Object nmsPlayer = player.getClass().getMethod("getHandle", new Class[0]).invoke(player, new Object[0]);
+		            Object packet = Class.forName(nmsPlayer.getClass().getPackage().getName() + ".PacketPlayInClientCommand").newInstance();
+		            Class<?> enumClass = Class.forName(nmsPlayer.getClass().getPackage().getName() + ".EnumClientCommand");
+		            for (Object ob : enumClass.getEnumConstants()) {
+		              if (ob.toString().equals("PERFORM_RESPAWN")) {
+		                packet = packet.getClass().getConstructor(new Class[] { enumClass }).newInstance(new Object[] { ob });
+		              }
+		            }
+		            Object con = nmsPlayer.getClass().getField("playerConnection").get(nmsPlayer);
+		            con.getClass().getMethod("a", new Class[] { packet.getClass() }).invoke(con, new Object[] { packet });
+		          }
+		          catch (Exception e)
+		          {
+		            e.printStackTrace();
+		          }
+		        }
+		      }
+		    }, 1);
+		    Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable()
+		    {
+		      public void run()
+		      {
+		        player.teleport(loc);
+		      }
+		    }, 1);
+		BUtils.sendTitle(e.getEntity(), "§c§lYOU DIED", e.getDeathMessage().replace(e.getEntity().getName(), "You").replace("was", "were"), 5, 5, 5);
+		
 	}
 
 }

@@ -3,7 +3,7 @@ package com.arrayprolc.sql;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import com.arrayprolc.Main.Main;
+import com.arrayprolc.MainPackage.Main;
 
 
 public class SQLTools {

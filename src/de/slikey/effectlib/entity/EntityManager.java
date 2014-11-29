@@ -14,7 +14,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitTask;
 
-import com.arrayprolc.Main.Main;
+import com.arrayprolc.MainPackage.Main;
 
 import de.slikey.effectlib.listener.ItemListener;
 import de.slikey.effectlib.util.RandomUtils;

@@ -5,7 +5,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-import com.arrayprolc.Main.Main;
+import com.arrayprolc.MainPackage.Main;
 import com.arrayprolc.bountifulupdate.BUtils;
 
 public class TabHeaderSetup implements Listener {

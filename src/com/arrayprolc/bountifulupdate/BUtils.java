@@ -1,54 +1,57 @@
 package com.arrayprolc.bountifulupdate;
 
-import net.minecraft.server.v1_7_R4.ChatSerializer;
-import net.minecraft.server.v1_7_R4.IChatBaseComponent;
-import net.minecraft.server.v1_7_R4.PacketPlayOutChat;
-import net.minecraft.server.v1_7_R4.PlayerConnection;
+import java.lang.reflect.Field;
 
-import org.bukkit.craftbukkit.v1_7_R4.entity.CraftPlayer;
+import net.minecraft.server.v1_8_R1.ChatSerializer;
+import net.minecraft.server.v1_8_R1.EnumTitleAction;
+import net.minecraft.server.v1_8_R1.IChatBaseComponent;
+import net.minecraft.server.v1_8_R1.PacketPlayOutChat;
+import net.minecraft.server.v1_8_R1.PacketPlayOutPlayerListHeaderFooter;
+import net.minecraft.server.v1_8_R1.PacketPlayOutTitle;
+import net.minecraft.server.v1_8_R1.PlayerConnection;
+
+import org.bukkit.craftbukkit.v1_8_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
-import org.spigotmc.ProtocolInjector;
-import org.spigotmc.ProtocolInjector.PacketTitle.Action;
 
 public class BUtils {
 
-	public static void sendTitleToPlayer(Player p, String title1, String subtitle1, int timing1, int timing2, int timing3){
-		if(!isPlayerRightVersion(p)) return;
-		PlayerConnection connection = getConnection(p);
-		IChatBaseComponent title = ChatSerializer.a("{'color': '" + "', 'text': '" + title1 + "'}");
-		IChatBaseComponent subtitle = ChatSerializer.a("{'color': '" + "', 'text': '" + subtitle1 + "'}");
-		connection.sendPacket(new ProtocolInjector.PacketTitle(Action.TITLE, timing1, timing2, timing3));
-		connection.sendPacket(new ProtocolInjector.PacketTitle(Action.TITLE, title));
-		connection.sendPacket(new ProtocolInjector.PacketTitle(Action.SUBTITLE, subtitle));
+	public static void sendTitle(Player player, String title, String subtitle, int fadeIn, int stay, int fadeOut) {
+		CraftPlayer craftplayer = (CraftPlayer) player;
+		PlayerConnection connection = craftplayer.getHandle().playerConnection;
+		IChatBaseComponent titleJSON = ChatSerializer.a("{'text': '" + title + "'}");
+		IChatBaseComponent subtitleJSON = ChatSerializer.a("{'text': '" + subtitle + "'}");
+		PacketPlayOutTitle titlePacket = new PacketPlayOutTitle(EnumTitleAction.TITLE, titleJSON, fadeIn, stay, fadeOut);
+		PacketPlayOutTitle subtitlePacket = new PacketPlayOutTitle(EnumTitleAction.SUBTITLE, subtitleJSON);
+		connection.sendPacket(titlePacket);
+		connection.sendPacket(subtitlePacket);
 	}
-
-	public static boolean isPlayerRightVersion(Player player)
-	{
-		return ((CraftPlayer)player).getHandle().playerConnection.networkManager.getVersion() >= 47;
-	}
-
-	public static PlayerConnection getConnection(Player p){
-		return ((CraftPlayer)p).getHandle().playerConnection;
-
-	}
-
 
 	public static void sendActionBar(Player p, String msg){
-		try{
-			if(((CraftPlayer) p).getHandle().playerConnection.networkManager.getVersion() >= 47){
-				//only 1.8 clients
-				IChatBaseComponent cbc = ChatSerializer.a("{\"text\": \""+msg+"\"}");
-				PacketPlayOutChat ppoc = new PacketPlayOutChat(cbc,2);
-				((CraftPlayer) p).getHandle().playerConnection.sendPacket(ppoc);
-			}
-		}catch(Exception e){}
+		IChatBaseComponent cbc = ChatSerializer.a("{\"text\": \""+msg+"\"}");
+		PacketPlayOutChat ppoc = new PacketPlayOutChat(cbc,(byte) 2);
+		((CraftPlayer) p).getHandle().playerConnection.sendPacket(ppoc);
 	}
-	
+
 	public static void sendHeaderAndFooter(Player p, String head, String foot){
-		if(!isPlayerRightVersion(p)) return;
-		PlayerConnection connection = getConnection(p);
+		CraftPlayer craftplayer = (CraftPlayer)p;
+		PlayerConnection connection = craftplayer.getHandle().playerConnection;
 		IChatBaseComponent header = ChatSerializer.a("{'color': '" + "', 'text': '" + head + "'}");
 		IChatBaseComponent footer = ChatSerializer.a("{'color': '" + "', 'text': '" + foot + "'}");
-		connection.sendPacket(new ProtocolInjector.PacketTabHeader(header, footer));
+		PacketPlayOutPlayerListHeaderFooter packet = new PacketPlayOutPlayerListHeaderFooter();
+
+		try {
+			Field headerField = packet.getClass().getDeclaredField("a");
+			headerField.setAccessible(true);
+			headerField.set(packet, header);
+			headerField.setAccessible(!headerField.isAccessible());
+
+			Field footerField = packet.getClass().getDeclaredField("b");
+			footerField.setAccessible(true);
+			footerField.set(packet, footer);
+			footerField.setAccessible(!footerField.isAccessible());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		connection.sendPacket(packet);
 	}
 }

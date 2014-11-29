@@ -23,7 +23,9 @@ public class Team {
 	public void addMember(Player p){
 		players.remove(p.getUniqueId());
 		players.add(p.getUniqueId());
-		p.setPlayerListName(code + p.getName());
+		p.setPlayerListName(TeamUtils.getColor(this) + p.getName());
+		TeamUtils.teams.remove(p.getUniqueId());
+		TeamUtils.teams.put(p.getUniqueId(), TeamUtils.getString(this));
 	}
 	
 	public void removeMember(Player p){
