@@ -1,6 +1,5 @@
 package com.arrayprolc.event;
 
-
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -12,9 +11,11 @@ import com.arrayprolc.item.ItemTools;
 import com.arrayprolc.team.Team;
 import com.arrayprolc.team.TeamUtils;
 
-public class PlayerJoin {
+public class PlayerJoin
+{
 
-	public static void joinServer(Player p){
+	public static void joinServer(Player p)
+	{
 		p.getInventory().clear();
 		p.setHealth(20.0D);
 		p.setFoodLevel(20);
@@ -22,11 +23,10 @@ public class PlayerJoin {
 		p.setVelocity(new Vector(0, 0, 0));
 		p.teleport(p.getWorld().getSpawnLocation());
 		p.setGameMode(GameMode.ADVENTURE);
-		Team t = TeamUtils.getFirstOpenTeam(new Team[] { Main.red, Main.blue} );
+		Team t = TeamUtils.getFirstOpenTeam(new Team[] { Main.red, Main.blue });
 		t.addMember(p);
-		p.getInventory().setItem(0, ItemTools.setName(new ItemStack(Material.WOOL, 1, (byte)11), "§9§lBLUE TEAM §7- §dCLICK TO JOIN"));
-		p.getInventory().setItem(8, ItemTools.setName(new ItemStack(Material.WOOL, 1, (byte)14), "§c§lRED TEAM §7- §dCLICK TO JOIN"));
+		p.getInventory().setItem(0, ItemTools.setName(new ItemStack(Material.WOOL, 1, (byte) 11), "ï¿½9ï¿½lBLUE TEAM ï¿½7- ï¿½dCLICK TO JOIN"));
+		p.getInventory().setItem(8, ItemTools.setName(new ItemStack(Material.WOOL, 1, (byte) 14), "ï¿½cï¿½lRED TEAM ï¿½7- ï¿½dCLICK TO JOIN"));
 	}
-	
+
 }
-	
